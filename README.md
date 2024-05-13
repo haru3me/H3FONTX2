@@ -31,6 +31,7 @@ FONTX2_str_puts(&strHandler, "青色:0x03", 0x03);
 //フレームバッファにコピー(ライブラリ外の関数)
 DMA2D_DrawL8(canvas, (uint8_t*)FBStart, 0, 0, 800, 32);
 ```
+![20240513_115413](https://github.com/haru3me/H3FONTX2/assets/121174745/81d53a73-4d50-4903-8405-c8dbe2310263)
 
 ## おまけ
 * ImHex用ヘッダ定義
