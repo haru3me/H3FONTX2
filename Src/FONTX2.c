@@ -10,8 +10,13 @@
 #ifdef FONTX2_USE_FATFS
 FONTX2_status_t FONTX2_read_FF(void* handle,uint32_t addr, void* data, uint32_t len){
 	UINT br;
-	f_lseek(((FONTX2_handler_t*)handle)->pFile, addr);
-	f_read(((FONTX2_handler_t*)handle)->pFile, data, len, &br);
+	FRESULT fres;
+	fres = f_lseek(((FONTX2_handler_t*)handle)->pFile, addr);
+	if(fres != FR_OK)
+		return FONTX2_FAIL;
+	fres = f_read(((FONTX2_handler_t*)handle)->pFile, data, len, &br);
+	if(fres != FR_OK)
+			return FONTX2_FAIL;
 	return (br==len)?FONTX2_OK:FONTX2_FAIL;
 }
 #endif
@@ -41,7 +46,8 @@ FONTX2_status_t FONTX2_Hchar(FONTX2_handler_t* pHandle,uint8_t c,
 	if(pHandle->char_code != 0)
 			return FONTX2_FAIL;
 	uint32_t offset = 17 + pHandle->bytes_char * c;
-	pHandle->func_read(pHandle,offset,pHandle->buf,pHandle->bytes_char);
+	if(pHandle->func_read(pHandle,offset,pHandle->buf,pHandle->bytes_char) == FONTX2_FAIL)
+		return FONTX2_FAIL;
 	return FONTX2_draw(pHandle, x, y, destbuf, bufwidth, color);
 }
 
@@ -70,7 +76,10 @@ FONTX2_status_t FONTX2_Wchar(FONTX2_handler_t* pHandle,uint16_t c,
 	}else{
 		uint8_t cbbuf[4];
 		while(ptr < pHandle->num_codeblock){
-			pHandle->func_read(pHandle,18+4*ptr,cbbuf,4);
+			if(pHandle->func_read(pHandle,18+4*ptr,cbbuf,4) == FONTX2_FAIL)
+				return FONTX2_FAIL;
+
+
 			cbstart = ((uint16_t*)cbbuf)[0];
 			cbend =  ((uint16_t*)cbbuf)[1];
 
@@ -84,7 +93,8 @@ FONTX2_status_t FONTX2_Wchar(FONTX2_handler_t* pHandle,uint16_t c,
 	}
 
 	offset = (18 + 4 * pHandle->num_codeblock) + (sum + (c - cbstart)) * pHandle->bytes_char;
-	pHandle->func_read(pHandle,offset,pHandle->buf,pHandle->bytes_char);
+	if(pHandle->func_read(pHandle,offset,pHandle->buf,pHandle->bytes_char) == FONTX2_FAIL)
+		return FONTX2_FAIL;
 
 	return FONTX2_draw(pHandle, x, y, destbuf, bufwidth, color);
 }
@@ -92,7 +102,11 @@ FONTX2_status_t FONTX2_Wchar(FONTX2_handler_t* pHandle,uint16_t c,
 FONTX2_status_t FONTX2_init_common(FONTX2_handler_t* pHandle,uint8_t isCacheCB){
 	uint8_t read_buffer[18];
 	const uint8_t signature[] = {'F','O','N','T','X','2'};
-	pHandle->func_read(pHandle,0,read_buffer,18);
+	FONTX2_status_t result;
+	result = pHandle->func_read(pHandle,0,read_buffer,18);
+	if(result == FONTX2_FAIL)
+		return result;
+
 	for(uint8_t i=0;i < 6;i++){
 		if(read_buffer[i] != signature[i])
 			return FONTX2_FAIL;
@@ -113,8 +127,12 @@ FONTX2_status_t FONTX2_init_common(FONTX2_handler_t* pHandle,uint8_t isCacheCB){
 		if(isCacheCB){
 			pHandle->cache_codeblock = malloc(pHandle->num_codeblock*4); //uint16*2
 			if(pHandle->cache_codeblock != NULL){
-				pHandle->func_read(pHandle,18,pHandle->cache_codeblock,
+				result = pHandle->func_read(pHandle,18,pHandle->cache_codeblock,
 									pHandle->num_codeblock*4);
+				if(result == FONTX2_FAIL){
+					free(pHandle->cache_codeblock);
+					pHandle->cache_codeblock = NULL;
+				}
 			}
 		}
 		break;
@@ -125,8 +143,13 @@ FONTX2_status_t FONTX2_init_common(FONTX2_handler_t* pHandle,uint8_t isCacheCB){
 	pHandle->bytes_x = (pHandle->font_width+7) / 8;
 	pHandle->bytes_char = pHandle->bytes_x * pHandle->font_height;
 	pHandle->buf = malloc(pHandle->bytes_char);
-	if(pHandle->buf == NULL)
+	if(pHandle->buf == NULL){
+		if(pHandle->cache_codeblock){
+			free(pHandle->cache_codeblock);
+			pHandle->cache_codeblock = NULL;
+		}
 		return FONTX2_FAIL;
+	}
 	return FONTX2_OK;
 }
 
