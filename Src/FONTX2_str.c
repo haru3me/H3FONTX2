@@ -10,7 +10,7 @@
 FONTX2_status_t FONTX2_str_init(FONTX2_str_handler_t* handler, uint8_t space,
 								FONTX2_handler_t* hFont, FONTX2_handler_t* zFont,
 								uint16_t canvas_width, uint16_t canvas_height,
-								uint8_t* pbuf){
+								FONTX2_color* pbuf){
 	if(hFont == NULL && zFont == NULL)
 		return FONTX2_FAIL;
 	if(canvas_width == 0 || canvas_height == 0)
@@ -31,7 +31,7 @@ FONTX2_status_t FONTX2_str_init(FONTX2_str_handler_t* handler, uint8_t space,
 	return FONTX2_OK;
 }
 
-FONTX2_status_t FONTX2_str_puts(FONTX2_str_handler_t* handler, char* str, uint8_t color){
+FONTX2_status_t FONTX2_str_puts(FONTX2_str_handler_t* handler, char* str, FONTX2_color color){
 	uint16_t slen = strlen(str);
 	uint32_t ptr = 0;
 	uint8_t chr;

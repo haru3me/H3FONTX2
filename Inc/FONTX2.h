@@ -11,7 +11,7 @@
 #include "string.h"
 #include "stdlib.h"
 
-#define FONTX2_USE_FATFS
+//#define FONTX2_USE_FATFS
 
 #ifdef FONTX2_USE_FATFS
 #include "ff.h"
@@ -21,6 +21,8 @@ typedef enum {
 	FONTX2_FAIL = 0x00,
 	FONTX2_OK	= 0x01,
 } FONTX2_status_t;
+
+typedef uint16_t FONTX2_color;
 
 typedef FONTX2_status_t (*FONTX2_read)(void* handle,uint32_t addr,void* data,uint32_t len);
 
@@ -47,8 +49,8 @@ FONTX2_status_t FONTX2_init(FONTX2_handler_t* pHandle, FONTX2_read pRead, uint8_
 #endif
 FONTX2_status_t FONTX2_Wchar(FONTX2_handler_t* pHandle,uint16_t c,
 								uint32_t x,uint32_t y,
-								uint8_t* destbuf,uint16_t bufwidth,uint8_t color);
+								FONTX2_color* destbuf,uint16_t bufwidth,FONTX2_color color);
 FONTX2_status_t FONTX2_Hchar(FONTX2_handler_t* pHandle,uint8_t c,
 								uint32_t x,uint32_t y,
-								uint8_t* destbuf,uint16_t bufwidth,uint8_t color);
+								FONTX2_color* destbuf,uint16_t bufwidth,FONTX2_color color);
 #endif /* FONTX2_INC_FONTX2_H_ */

@@ -14,7 +14,7 @@ typedef struct {
 	uint8_t space;
 	FONTX2_handler_t* hFont;
 	FONTX2_handler_t* zFont;
-	uint8_t* canvas;
+	FONTX2_color* canvas;
 	uint16_t canvas_width;
 	uint16_t canvas_height;
 	uint16_t cursor_x;
@@ -25,6 +25,6 @@ typedef struct {
 FONTX2_status_t FONTX2_str_init(FONTX2_str_handler_t* handler, uint8_t space,
 								FONTX2_handler_t* hFont, FONTX2_handler_t* zFont,
 								uint16_t canvas_width, uint16_t canvas_height,
-								uint8_t* pbuf);
-FONTX2_status_t FONTX2_str_puts(FONTX2_str_handler_t* handler, char* str, uint8_t color);
+								FONTX2_color* pbuf);
+FONTX2_status_t FONTX2_str_puts(FONTX2_str_handler_t* handler, char* str, FONTX2_color color);
 #endif /* FONTX2_INC_FONTX2_STR_H_ */

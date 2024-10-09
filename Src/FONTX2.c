@@ -22,7 +22,7 @@ FONTX2_status_t FONTX2_read_FF(void* handle,uint32_t addr, void* data, uint32_t 
 #endif
 
 FONTX2_status_t FONTX2_draw(FONTX2_handler_t* pHandle,uint32_t xoffs,uint32_t yoffs,
-							uint8_t* destbuf,uint16_t bufwidth,uint8_t color){
+							FONTX2_color* destbuf,uint16_t bufwidth,FONTX2_color color){
 	for(uint8_t y = 0;y < pHandle->font_height;y++){
 		uint8_t x = 0;
 		for(uint8_t xb = 0;xb < pHandle->bytes_x;xb++){
@@ -42,7 +42,7 @@ FONTX2_status_t FONTX2_draw(FONTX2_handler_t* pHandle,uint32_t xoffs,uint32_t yo
 
 FONTX2_status_t FONTX2_Hchar(FONTX2_handler_t* pHandle,uint8_t c,
 								uint32_t x,uint32_t y,
-								uint8_t* destbuf,uint16_t bufwidth,uint8_t color){
+								FONTX2_color* destbuf,uint16_t bufwidth,FONTX2_color color){
 	if(pHandle->char_code != 0)
 			return FONTX2_FAIL;
 	uint32_t offset = 17 + pHandle->bytes_char * c;
@@ -53,7 +53,7 @@ FONTX2_status_t FONTX2_Hchar(FONTX2_handler_t* pHandle,uint8_t c,
 
 FONTX2_status_t FONTX2_Wchar(FONTX2_handler_t* pHandle,uint16_t c,
 								uint32_t x,uint32_t y,
-								uint8_t* destbuf,uint16_t bufwidth,uint8_t color){
+								FONTX2_color* destbuf,uint16_t bufwidth,FONTX2_color color){
 	if(pHandle->char_code != 1)
 		return FONTX2_FAIL;
 
