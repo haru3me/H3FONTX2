@@ -31,10 +31,15 @@ FONTX2_status_t FONTX2_str_init(FONTX2_str_handler_t* handler, uint8_t space,
 	return FONTX2_OK;
 }
 
-FONTX2_status_t FONTX2_str_puts(FONTX2_str_handler_t* handler, char* str, FONTX2_color color){
+FONTX2_status_t FONTX2_str_puts_offs(FONTX2_str_handler_t* handler,int16_t xoffs,int16_t yoffs, char* str, FONTX2_color color){
 	uint16_t slen = strlen(str);
 	uint32_t ptr = 0;
 	uint8_t chr;
+
+	if(xoffs != -1)
+		handler->cursor_x = xoffs;
+	if(yoffs != -1)
+		handler->cursor_y = yoffs;
 
 	while(ptr<slen){
 		chr = *((uint8_t*)(str+ptr));
@@ -46,7 +51,11 @@ FONTX2_status_t FONTX2_str_puts(FONTX2_str_handler_t* handler, char* str, FONTX2
 			}
 			if(handler->zFont->font_width > (handler->canvas_width - handler->cursor_x)){
 				handler->cursor_y += handler->zFont->font_height;
-				handler->cursor_x = 0;
+
+				if(xoffs == -1)
+					handler->cursor_x = 0;
+				else
+					handler->cursor_x = xoffs;
 			}
 			if(handler->cursor_y + handler->zFont->font_height > handler->canvas_height){
 				break; //no space
@@ -64,13 +73,22 @@ FONTX2_status_t FONTX2_str_puts(FONTX2_str_handler_t* handler, char* str, FONTX2
 			}
 			if(chr == '\n'){
 				handler->cursor_y += handler->hFont->font_height;
-				handler->cursor_x = 0;
+
+				if(xoffs == -1)
+					handler->cursor_x = 0;
+				else
+					handler->cursor_x = xoffs;
+
 				ptr+=1;
 				continue;
 			}
 			if(handler->hFont->font_width > (handler->canvas_width - handler->cursor_x)){
 				handler->cursor_y += handler->hFont->font_height;
-				handler->cursor_x = 0;
+
+				if(xoffs == -1)
+					handler->cursor_x = 0;
+				else
+					handler->cursor_x = xoffs;
 			}
 			if(handler->cursor_y + handler->hFont->font_height > handler->canvas_height){
 				break; //no space
@@ -83,4 +101,9 @@ FONTX2_status_t FONTX2_str_puts(FONTX2_str_handler_t* handler, char* str, FONTX2
 	}
 
 	return FONTX2_OK;
+}
+
+
+FONTX2_status_t FONTX2_str_puts(FONTX2_str_handler_t* handler,char* str, FONTX2_color color){
+	return FONTX2_str_puts_offs(handler, -1, -1, str, color);
 }
